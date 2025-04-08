@@ -2,7 +2,7 @@ package com.example.pacman.model;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
-import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
 import javafx.geometry.Rectangle2D;
 import java.util.List;
 
@@ -10,11 +10,22 @@ public class Player {
     private double x, y;
     private double dx = 0, dy = 0;
     private int score;
+    private Image pacmanRight;
+    private Image pacmanLeft;
+    private Image pacmanUp;
+    private Image pacmanDown;
+    private Image currentImage;
 
     public Player(double x, double y) {
         this.x = x;
         this.y = y;
         this.score = 0;
+
+        pacmanRight = new Image(getClass().getResourceAsStream("/pacmanRight.gif"));
+        pacmanLeft = new Image(getClass().getResourceAsStream("/pacmanLeft.gif"));
+        pacmanUp = new Image(getClass().getResourceAsStream("/pacmanUp.gif"));
+        pacmanDown = new Image(getClass().getResourceAsStream("/pacmanDown.gif"));
+        currentImage = pacmanRight;
     }
 
     public void handleKey(KeyCode code) {
@@ -22,18 +33,22 @@ public class Player {
             case UP -> {
                 dx = 0;
                 dy = -2;
+                currentImage = pacmanUp;
             }
             case DOWN -> {
                 dx = 0;
                 dy = 2;
+                currentImage = pacmanDown;
             }
             case LEFT -> {
                 dx = -2;
                 dy = 0;
+                currentImage = pacmanLeft;
             }
             case RIGHT -> {
                 dx = 2;
                 dy = 0;
+                currentImage = pacmanRight;
             }
         }
     }
@@ -61,9 +76,8 @@ public class Player {
 
     public void draw(GraphicsContext gc) {
         update(GameModel.getInstance().getWalls());
-        gc.setFill(Color.YELLOW);
-        gc.fillOval(x, y, 30, 30);
-        gc.setFill(Color.WHITE);
+        gc.drawImage(currentImage, x, y, 30, 30);
+        gc.setFill(javafx.scene.paint.Color.WHITE);
         gc.fillText("Score: " + score, 10, 590);
     }
 
@@ -78,6 +92,7 @@ public class Player {
     public double getX() {
         return x;
     }
+
     public double getY() {
         return y;
     }

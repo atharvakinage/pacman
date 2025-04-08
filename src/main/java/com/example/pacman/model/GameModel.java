@@ -64,10 +64,10 @@ public class GameModel {
     }
 
     private void generateGhosts() {
-        ghosts.add(new Ghost(150, 150, Color.RED));
-        ghosts.add(new Ghost(400, 400, Color.PINK));
-        ghosts.add(new Ghost(300, 150, Color.CYAN));
-        ghosts.add(new Ghost(150, 400, Color.ORANGE));
+        ghosts.add(new Ghost(150, 150, "red"));
+        ghosts.add(new Ghost(400, 400, "pink"));
+        ghosts.add(new Ghost(300, 150, "cyan"));
+        ghosts.add(new Ghost(150, 400, "yellow"));
     }
 
     public void draw(GraphicsContext gc) {
