@@ -4,6 +4,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.image.Image;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.paint.Color;
+
 import java.util.List;
 
 public class Player {
@@ -53,14 +55,23 @@ public class Player {
         }
     }
 
-    public void update(List<Wall> walls) {
+    public void update(List<Wall> walls, List<Pellet> pellets) {
         double oldX = x;
         double oldY = y;
         x += dx;
         y += dy;
+
         if (checkCollision(walls)) {
             x = oldX;
             y = oldY;
+        }
+
+        Rectangle2D bounds = new Rectangle2D(x, y, 30, 30);
+        for (Pellet pellet : pellets) {
+            if (pellet.isVisible() && pellet.getBounds().intersects(bounds)) {
+                addScore(pellet.isPowerPellet() ? 50 : 10);
+                pellet.setVisible(false);
+            }
         }
     }
 
@@ -75,25 +86,16 @@ public class Player {
     }
 
     public void draw(GraphicsContext gc) {
-        update(GameModel.getInstance().getWalls());
+        update(GameModel.getInstance().getWalls(), GameModel.getInstance().getPellets());
         gc.drawImage(currentImage, x, y, 30, 30);
-        gc.setFill(javafx.scene.paint.Color.WHITE);
-        gc.fillText("Score: " + score, 10, 590);
+        gc.setFill(Color.WHITE);
+        gc.setFont(javafx.scene.text.Font.font("Arial", 20));
+        //System.out.println(score);
+        gc.fillText("Score: " + score, 30, 50);
     }
 
-    public int getScore() {
-        return score;
-    }
-
-    public void addScore(int value) {
-        this.score += value;
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
+    public int getScore() { return score; }
+    public void addScore(int value) { this.score += value; }
+    public double getX() { return x; }
+    public double getY() { return y; }
 }

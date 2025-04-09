@@ -1,5 +1,6 @@
 package com.example.pacman.model;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import java.util.ArrayList;
@@ -12,14 +13,17 @@ public class GameModel {
     private final Player player;
     private final List<Wall> walls;
     private final List<Ghost> ghosts;
+    private final List<Pellet> pellets;
     private final List<CollisionObserver> observers = new ArrayList<>();
 
     private GameModel() {
         player = new Player(270, 270);
         walls = new ArrayList<>();
         ghosts = new ArrayList<>();
+        pellets = new ArrayList<>();
         generateMaze();
         generateGhosts();
+        generatePellets();
         registerObserver(new CollisionLogger());
     }
 
@@ -28,24 +32,17 @@ public class GameModel {
         return instance;
     }
 
-    public Player getPlayer() {
-        return player;
-    }
-
-    public List<Wall> getWalls() {
-        return walls;
-    }
-
-    public List<Ghost> getGhosts() {
-        return ghosts;
-    }
+    public Player getPlayer() { return player; }
+    public List<Wall> getWalls() { return walls; }
+    public List<Ghost> getGhosts() { return ghosts; }
+    public List<Pellet> getPellets() { return pellets; }
 
     public void registerObserver(CollisionObserver observer) {
         observers.add(observer);
     }
 
     private void notifyCollisionObservers(String message) {
-        for(CollisionObserver observer : observers) {
+        for (CollisionObserver observer : observers) {
             observer.onGhostCollision(message);
         }
     }
@@ -57,7 +54,6 @@ public class GameModel {
             walls.add(new Wall(0, i, 30, 30));
             walls.add(new Wall(570, i, 30, 30));
         }
-        // Add some internal walls
         walls.add(new Wall(120, 120, 30, 150));
         walls.add(new Wall(300, 300, 90, 30));
         walls.add(new Wall(450, 150, 30, 120));
@@ -70,6 +66,19 @@ public class GameModel {
         ghosts.add(new Ghost(150, 400, "yellow"));
     }
 
+    private void generatePellets() {
+        for (int i = 30; i < 570; i += 30) {
+            for (int j = 30; j < 570; j += 30) {
+                Rectangle2D pelletBounds = new Rectangle2D(i, j, 30, 30);
+                boolean isInsideWall = walls.stream().anyMatch(w -> w.getBounds().intersects(pelletBounds));
+                if (!isInsideWall) {
+                    boolean isPower = (i % 120 == 0 && j % 120 == 0);
+                    pellets.add(new Pellet(i, j, isPower));
+                }
+            }
+        }
+    }
+
     public void draw(GraphicsContext gc) {
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, 600, 600);
@@ -77,13 +86,18 @@ public class GameModel {
         for (Wall wall : walls) {
             wall.draw(gc);
         }
+        for (Pellet pellet : pellets) {
+            pellet.draw(gc);
+        }
         for (Ghost ghost : ghosts) {
             ghost.move(walls);
             ghost.draw(gc);
-            if(ghost.collidesWith(player)) {
+            if (ghost.collidesWith(player)) {
                 notifyCollisionObservers("Pac-Man collided with a ghost at (" + ghost.getX() + ", " + ghost.getY() + ")");
             }
         }
         player.draw(gc);
+
+
     }
 }
