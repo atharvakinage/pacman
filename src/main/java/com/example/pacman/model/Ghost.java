@@ -1,4 +1,3 @@
-// File: model/Ghost.java
 package com.example.pacman.model;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -14,11 +13,16 @@ public class Ghost {
     private final Random random = new Random();
     private boolean isChasing = false;
     private Player targetPlayer;
+    private boolean isFrightened = false;
     private Image ghostImage;
+    private Image frightenedImage;
+    private final double startX, startY;
 
     public Ghost(double x, double y, String colorName) {
         this.x = x;
         this.y = y;
+        this.startX = x;
+        this.startY = y;
         this.colorName = colorName;
         loadImage();
         setRandomDirection();
@@ -27,6 +31,7 @@ public class Ghost {
     private void loadImage() {
         String imagePath = "/ghost_" + colorName.toLowerCase() + ".gif";
         ghostImage = new Image(getClass().getResourceAsStream(imagePath));
+        frightenedImage = new Image(getClass().getResourceAsStream("/frightenedghost.gif"));
     }
 
     public void setChasing(Player player) {
@@ -34,13 +39,17 @@ public class Ghost {
         this.targetPlayer = player;
     }
 
+    public void setFrightened(boolean frightened) {
+        this.isFrightened = frightened;
+    }
+
     private void setRandomDirection() {
         int dir = random.nextInt(4);
         switch (dir) {
-            case 0 -> { dx = 2; dy = 0; } // Right
-            case 1 -> { dx = -2; dy = 0; } // Left
-            case 2 -> { dx = 0; dy = 2; } // Down
-            case 3 -> { dx = 0; dy = -2; } // Up
+            case 0 -> { dx = 2; dy = 0; }
+            case 1 -> { dx = -2; dy = 0; }
+            case 2 -> { dx = 0; dy = 2; }
+            case 3 -> { dx = 0; dy = -2; }
         }
     }
 
@@ -63,7 +72,7 @@ public class Ghost {
         double oldX = x;
         double oldY = y;
 
-        if (isChasing) {
+        if (isChasing && !isFrightened) {
             setChaseDirection();
         }
 
@@ -75,7 +84,7 @@ public class Ghost {
             if (wall.getBounds().intersects(bounds)) {
                 x = oldX;
                 y = oldY;
-                if (isChasing) {
+                if (isChasing && !isFrightened) {
                     dx = 0;
                     dy = 0;
                 } else {
@@ -93,7 +102,8 @@ public class Ghost {
     }
 
     public void draw(GraphicsContext gc) {
-        gc.drawImage(ghostImage, x, y, 30, 30);
+        Image imgToDraw = isFrightened ? frightenedImage : ghostImage;
+        gc.drawImage(imgToDraw, x, y, 30, 30);
     }
 
     public double getX() {
@@ -103,4 +113,13 @@ public class Ghost {
     public double getY() {
         return y;
     }
-} 
+
+    public void resetPosition(){
+        this.x = startX;
+        this.y = startY;
+    }
+
+    public boolean isFrightened() {
+        return isFrightened;
+    }
+}

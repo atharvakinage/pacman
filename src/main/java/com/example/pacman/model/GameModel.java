@@ -1,8 +1,9 @@
 package com.example.pacman.model;
 
-import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
+import javafx.geometry.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import com.example.pacman.observer.CollisionObserver;
@@ -15,12 +16,17 @@ public class GameModel {
     private final List<Ghost> ghosts;
     private final List<Pellet> pellets;
     private final List<CollisionObserver> observers = new ArrayList<>();
+    private boolean powerModeActive = false;
+    private long powerModeStartTime;
+    private static final int POWER_MODE_DURATION = 7000; // milliseconds
+    private Image frightenedGhostImage;
 
     private GameModel() {
         player = new Player(270, 270);
         walls = new ArrayList<>();
         ghosts = new ArrayList<>();
         pellets = new ArrayList<>();
+        frightenedGhostImage = new Image(getClass().getResourceAsStream("/frightenedghost.gif"));
         generateMaze();
         generateGhosts();
         generatePellets();
@@ -36,6 +42,8 @@ public class GameModel {
     public List<Wall> getWalls() { return walls; }
     public List<Ghost> getGhosts() { return ghosts; }
     public List<Pellet> getPellets() { return pellets; }
+
+    public Image getFrightenedGhostImage() { return frightenedGhostImage; }
 
     public void registerObserver(CollisionObserver observer) {
         observers.add(observer);
@@ -79,7 +87,26 @@ public class GameModel {
         }
     }
 
+    public void activatePowerMode() {
+        powerModeActive = true;
+        powerModeStartTime = System.currentTimeMillis();
+        for (Ghost ghost : ghosts) {
+            ghost.setFrightened(true);
+        }
+    }
+
+    private void checkPowerModeTimeout() {
+        if (powerModeActive && System.currentTimeMillis() - powerModeStartTime > POWER_MODE_DURATION) {
+            powerModeActive = false;
+            for (Ghost ghost : ghosts) {
+                ghost.setFrightened(false);
+            }
+        }
+    }
+
     public void draw(GraphicsContext gc) {
+        checkPowerModeTimeout();
+
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, 600, 600);
 
@@ -93,11 +120,17 @@ public class GameModel {
             ghost.move(walls);
             ghost.draw(gc);
             if (ghost.collidesWith(player)) {
-                notifyCollisionObservers("Pac-Man collided with a ghost at (" + ghost.getX() + ", " + ghost.getY() + ")");
+                if (ghost.isFrightened()) {
+                    player.addScore(200);
+                    ghost.setFrightened(false);
+                    ghost.resetPosition();
+                    notifyCollisionObservers("Pac-Man ate a frightened ghost at (" + ghost.getX() + ", " + ghost.getY() + ")");
+                } else {
+                    notifyCollisionObservers("Pac-Man collided with a ghost at (" + ghost.getX() + ", " + ghost.getY() + ")");
+                    // You can add logic here to handle life loss or game over.
+                }
             }
         }
         player.draw(gc);
-
-
     }
 }

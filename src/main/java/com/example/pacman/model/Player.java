@@ -4,8 +4,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.image.Image;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.paint.Color;
-
 import java.util.List;
 
 public class Player {
@@ -71,6 +69,9 @@ public class Player {
             if (pellet.isVisible() && pellet.getBounds().intersects(bounds)) {
                 addScore(pellet.isPowerPellet() ? 50 : 10);
                 pellet.setVisible(false);
+                if (pellet.isPowerPellet()) {
+                    GameModel.getInstance().activatePowerMode();
+                }
             }
         }
     }
@@ -88,10 +89,8 @@ public class Player {
     public void draw(GraphicsContext gc) {
         update(GameModel.getInstance().getWalls(), GameModel.getInstance().getPellets());
         gc.drawImage(currentImage, x, y, 30, 30);
-        gc.setFill(Color.WHITE);
-        gc.setFont(javafx.scene.text.Font.font("Arial", 20));
-        //System.out.println(score);
-        gc.fillText("Score: " + score, 30, 50);
+        gc.setFill(javafx.scene.paint.Color.WHITE);
+        gc.fillText("Score: " + score, 10, 20);
     }
 
     public int getScore() { return score; }
