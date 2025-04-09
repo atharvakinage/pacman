@@ -11,10 +11,10 @@ import com.example.pacman.observer.CollisionLogger;
 
 public class GameModel {
     private static GameModel instance;
-    private final Player player;
-    private final List<Wall> walls;
-    private final List<Ghost> ghosts;
-    private final List<Pellet> pellets;
+    private Player player;
+    private List<Wall> walls;
+    private List<Ghost> ghosts;
+    private List<Pellet> pellets;
     private final List<CollisionObserver> observers = new ArrayList<>();
     private boolean powerModeActive = false;
     private long powerModeStartTime;
@@ -38,11 +38,14 @@ public class GameModel {
         return instance;
     }
 
+    public static void resetInstance() {
+        instance = new GameModel();
+    }
+
     public Player getPlayer() { return player; }
     public List<Wall> getWalls() { return walls; }
     public List<Ghost> getGhosts() { return ghosts; }
     public List<Pellet> getPellets() { return pellets; }
-
     public Image getFrightenedGhostImage() { return frightenedGhostImage; }
 
     public void registerObserver(CollisionObserver observer) {
@@ -113,12 +116,27 @@ public class GameModel {
         for (Wall wall : walls) {
             wall.draw(gc);
         }
+
         for (Pellet pellet : pellets) {
             pellet.draw(gc);
         }
+
+        List<Pellet> toRemove = new ArrayList<>();
+        for (Pellet pellet : pellets) {
+            if (player.collidesWith(pellet)) {
+                if (pellet.isPowerPellet()) {
+                    activatePowerMode();
+                }
+                player.addScore(10);
+                toRemove.add(pellet);
+            }
+        }
+        pellets.removeAll(toRemove);
+
         for (Ghost ghost : ghosts) {
             ghost.move(walls);
             ghost.draw(gc);
+
             if (ghost.collidesWith(player)) {
                 if (ghost.isFrightened()) {
                     player.addScore(200);
@@ -127,10 +145,19 @@ public class GameModel {
                     notifyCollisionObservers("Pac-Man ate a frightened ghost at (" + ghost.getX() + ", " + ghost.getY() + ")");
                 } else {
                     notifyCollisionObservers("Pac-Man collided with a ghost at (" + ghost.getX() + ", " + ghost.getY() + ")");
-                    // You can add logic here to handle life loss or game over.
                 }
             }
         }
+
         player.draw(gc);
+    }
+
+    public void copyFrom(GameModel other) {
+        this.player = other.player;
+        this.walls = new ArrayList<>(other.walls);
+        this.ghosts = new ArrayList<>(other.ghosts);
+        this.pellets = new ArrayList<>(other.pellets);
+        this.powerModeActive = other.powerModeActive;
+        this.powerModeStartTime = other.powerModeStartTime;
     }
 }

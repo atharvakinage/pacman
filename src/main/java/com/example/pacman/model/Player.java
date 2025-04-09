@@ -97,4 +97,12 @@ public class Player {
     public void addScore(int value) { this.score += value; }
     public double getX() { return x; }
     public double getY() { return y; }
+
+    public Rectangle2D getBounds() {
+        return new Rectangle2D(x, y, 30, 30);
+    }
+
+    public boolean collidesWith(Pellet pellet) {
+        return this.getBounds().intersects(pellet.getBounds());
+    }
 }
