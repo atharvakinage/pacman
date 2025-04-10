@@ -15,8 +15,11 @@ public class Wall {
     }
 
     public void draw(GraphicsContext gc) {
-        gc.setFill(Color.BLUE);
+        gc.setFill(Color.BLACK);
         gc.fillRect(x, y, width, height);
+        gc.setStroke(Color.BLUE);
+        gc.setLineWidth(2);
+        gc.strokeRect(x, y, width, height);
     }
 
     public Rectangle2D getBounds() {
