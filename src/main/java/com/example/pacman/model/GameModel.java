@@ -107,6 +107,8 @@ public class GameModel {
         }
     }
 
+    public boolean isPowerModeActive() { return powerModeActive; }
+
     public void draw(GraphicsContext gc) {
         checkPowerModeTimeout();
 

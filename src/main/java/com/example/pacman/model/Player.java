@@ -90,7 +90,7 @@ public class Player {
         update(GameModel.getInstance().getWalls(), GameModel.getInstance().getPellets());
         gc.drawImage(currentImage, x, y, 30, 30);
         gc.setFill(javafx.scene.paint.Color.WHITE);
-        gc.fillText("Score: " + score, 10, 20);
+        gc.fillText("Score: " + score, 30, 30);
     }
 
     public int getScore() { return score; }

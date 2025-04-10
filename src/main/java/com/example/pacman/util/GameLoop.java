@@ -4,8 +4,10 @@ import com.example.pacman.model.GameModel;
 import com.example.pacman.model.Ghost;
 import com.example.pacman.model.Pellet;
 import com.example.pacman.model.Player;
+import com.example.pacman.view.ScoreBoard;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -16,11 +18,13 @@ public class GameLoop extends AnimationTimer {
     private boolean gameOver = false;
     private boolean playerWon = false;
     private Player player;
+    private ScoreBoard scoreBoard;
 
     public GameLoop(GraphicsContext gc, GameModel model) {
         this.gc = gc;
         this.model = model;
-        this.player = model.getPlayer();
+        this.scoreBoard = new ScoreBoard();
+        bindArrowKeys();
     }
 
     @Override
@@ -38,6 +42,8 @@ public class GameLoop extends AnimationTimer {
         model.getPlayer().draw(gc);
         model.getGhosts().forEach(ghost -> ghost.draw(gc));
         model.getWalls().forEach(wall -> wall.draw(gc));
+        scoreBoard.updateScore( model.getPlayer().getScore());
+        scoreBoard.updatePowerMode( model.isPowerModeActive());
 
         // Check for pellet win
         if (model.getPellets().isEmpty()) {
@@ -61,22 +67,36 @@ public class GameLoop extends AnimationTimer {
     private void showEndScreen() {
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, 600, 600);
-        gc.setFill(Color.YELLOW);
-        gc.setFont(new Font("Arial", 48));
 
-        String message = playerWon ? "You Win!" : "Game Over!";
-        gc.fillText(message, 180, 300);
+        String message = playerWon ? "🎉 YOU WIN!" : "💀 GAME OVER";
+        String restartMsg = "Press SPACE to Restart";
 
-        gc.setFont(new Font("Arial", 24));
-        gc.setFill(Color.WHITE);
-        gc.fillText("Press SPACE to Restart", 170, 350);
+        // Main message
+        gc.setFill(playerWon ? Color.LIMEGREEN : Color.RED);
+        gc.setFont(Font.font("Consolas", 52));
+        gc.fillText(message, 110, 280);
 
+        // Shadow for depth
+        gc.setFill(Color.DARKGRAY);
+        gc.setFont(Font.font("Consolas", 52));
+        gc.fillText(message, 112, 282); // shadow offset
+
+        // "Press SPACE to Restart"
+        gc.setFill(Color.CYAN);
+        gc.setFont(Font.font("Consolas", 26));
+        gc.fillText(restartMsg, 150, 350);
+        gc.setEffect(new DropShadow(3, Color.CYAN));
+
+        // Ensure keyboard input works
+        gc.getCanvas().requestFocus();
         gc.getCanvas().setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.SPACE) {
                 restartGame();
             }
         });
     }
+
+
 
     private void restartGame() {
         GameModel.resetInstance();
@@ -85,5 +105,15 @@ public class GameLoop extends AnimationTimer {
         this.player = model.getPlayer();
         gameOver = false;
         playerWon = false;
+        bindArrowKeys();
+        scoreBoard.close();
+        scoreBoard = new ScoreBoard();
+    }
+
+    private void bindArrowKeys(){
+        gc.getCanvas().requestFocus();
+        gc.getCanvas().setOnKeyPressed(event -> {
+            model.getPlayer().handleKey(event.getCode());
+        });
     }
 }
