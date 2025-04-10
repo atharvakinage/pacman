@@ -1,5 +1,6 @@
 package com.example.pacman.model;
 
+import com.example.pacman.db.ScoreDAO;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.image.Image;
@@ -20,6 +21,7 @@ public class GameModel {
     private long powerModeStartTime;
     private static final int POWER_MODE_DURATION = 7000; // milliseconds
     private Image frightenedGhostImage;
+    private String playerName = "Unknown";
 
     private GameModel() {
         player = new Player(270, 270);
@@ -147,6 +149,7 @@ public class GameModel {
                     notifyCollisionObservers("Pac-Man ate a frightened ghost at (" + ghost.getX() + ", " + ghost.getY() + ")");
                 } else {
                     notifyCollisionObservers("Pac-Man collided with a ghost at (" + ghost.getX() + ", " + ghost.getY() + ")");
+
                 }
             }
         }
@@ -161,5 +164,13 @@ public class GameModel {
         this.pellets = new ArrayList<>(other.pellets);
         this.powerModeActive = other.powerModeActive;
         this.powerModeStartTime = other.powerModeStartTime;
+    }
+
+    public void setPlayerName(String name) {
+        this.playerName = name;
+    }
+
+    public String getPlayerName() {
+        return playerName;
     }
 }

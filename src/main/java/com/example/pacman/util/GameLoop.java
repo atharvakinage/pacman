@@ -1,5 +1,6 @@
 package com.example.pacman.util;
 
+import com.example.pacman.db.ScoreDAO;
 import com.example.pacman.model.GameModel;
 import com.example.pacman.model.Ghost;
 import com.example.pacman.model.Pellet;
@@ -69,7 +70,7 @@ public class GameLoop extends AnimationTimer {
         gc.fillRect(0, 0, 600, 600);
 
         String message = playerWon ? "🎉 YOU WIN!" : "💀 GAME OVER";
-        String restartMsg = "Press SPACE to Restart";
+        String restartMsg = "Press SPACE to Save Score!!\n & Restart";
 
         // Main message
         gc.setFill(playerWon ? Color.LIMEGREEN : Color.RED);
@@ -85,7 +86,6 @@ public class GameLoop extends AnimationTimer {
         gc.setFill(Color.CYAN);
         gc.setFont(Font.font("Consolas", 26));
         gc.fillText(restartMsg, 150, 350);
-        gc.setEffect(new DropShadow(3, Color.CYAN));
 
         // Ensure keyboard input works
         gc.getCanvas().requestFocus();
@@ -99,6 +99,12 @@ public class GameLoop extends AnimationTimer {
 
 
     private void restartGame() {
+        int finalScore = model.getPlayer().getScore();
+        String playerName = model.getPlayerName();
+
+        System.out.println("Saving score for: " + playerName + " | Score: " + finalScore);
+        new ScoreDAO().insertScore(playerName, finalScore);
+
         GameModel.resetInstance();
         GameModel newModel = GameModel.getInstance();
         this.model.copyFrom(newModel);
@@ -108,6 +114,9 @@ public class GameLoop extends AnimationTimer {
         bindArrowKeys();
         scoreBoard.close();
         scoreBoard = new ScoreBoard();
+
+
+
     }
 
     private void bindArrowKeys(){
