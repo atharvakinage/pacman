@@ -1,0 +1,4 @@
+package com.example.pacman.factory;
+
+public class EntityFactory {
+}
