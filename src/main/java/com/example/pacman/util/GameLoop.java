@@ -103,7 +103,8 @@ public class GameLoop extends AnimationTimer {
         String playerName = model.getPlayerName();
 
         System.out.println("Saving score for: " + playerName + " | Score: " + finalScore);
-        new ScoreDAO().insertScore(playerName, finalScore);
+        ScoreDAO dao = ScoreDAO.getInstance();
+        dao.insertScore(playerName, finalScore);
 
         GameModel.resetInstance();
         GameModel newModel = GameModel.getInstance();

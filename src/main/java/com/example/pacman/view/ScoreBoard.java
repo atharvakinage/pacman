@@ -73,7 +73,8 @@ public class ScoreBoard {
 
     private void loadLeaderboard() {
         ObservableList<LeaderboardRow> rows = FXCollections.observableArrayList();
-        new ScoreDAO().getTopScores(10).forEach(entry -> {
+        ScoreDAO dao = ScoreDAO.getInstance();
+        dao.getTopScores(10).forEach(entry -> {
             String[] parts = entry.split(" - ");
             if (parts.length == 2) {
                 String name = parts[0];
