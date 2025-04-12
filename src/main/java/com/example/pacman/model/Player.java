@@ -6,10 +6,9 @@ import javafx.scene.image.Image;
 import javafx.geometry.Rectangle2D;
 import java.util.List;
 
-public class Player {
-    private double x, y;
-    private double dx = 0, dy = 0;
-    private int score;
+public class Player extends GameEntity {
+    private double dx = 0, dy = 0; // Movement deltas
+    private int score; // Player's score
     private Image pacmanRight;
     private Image pacmanLeft;
     private Image pacmanUp;
@@ -17,10 +16,10 @@ public class Player {
     private Image currentImage;
 
     public Player(double x, double y) {
-        this.x = x;
-        this.y = y;
+        super(x, y); // Pass coordinates to the parent class
         this.score = 0;
 
+        // Load Pacman images
         pacmanRight = new Image(getClass().getResourceAsStream("/pacmanRight.gif"));
         pacmanLeft = new Image(getClass().getResourceAsStream("/pacmanLeft.gif"));
         pacmanUp = new Image(getClass().getResourceAsStream("/pacmanUp.gif"));
@@ -29,6 +28,7 @@ public class Player {
     }
 
     public void handleKey(KeyCode code) {
+        // Handle movement based on the key pressed
         switch (code) {
             case UP -> {
                 dx = 0;
@@ -54,17 +54,19 @@ public class Player {
     }
 
     public void update(List<Wall> walls, List<Pellet> pellets) {
-        double oldX = x;
-        double oldY = y;
-        x += dx;
-        y += dy;
+        double oldX = getX();
+        double oldY = getY();
+        setX(getX() + dx);
+        setY(getY() + dy);
 
+        // Roll back movement if a collision occurs
         if (checkCollision(walls)) {
-            x = oldX;
-            y = oldY;
+            setX(oldX);
+            setY(oldY);
         }
 
-        Rectangle2D bounds = new Rectangle2D(x, y, 30, 30);
+        // Check for pellet collisions and update score
+        Rectangle2D bounds = new Rectangle2D(getX(), getY(), 30, 30);
         for (Pellet pellet : pellets) {
             if (pellet.isVisible() && pellet.getBounds().intersects(bounds)) {
                 addScore(pellet.isPowerPellet() ? 50 : 10);
@@ -77,7 +79,8 @@ public class Player {
     }
 
     private boolean checkCollision(List<Wall> walls) {
-        Rectangle2D bounds = new Rectangle2D(x, y, 30, 30);
+        // Check for collision with walls
+        Rectangle2D bounds = new Rectangle2D(getX(), getY(), 30, 30);
         for (Wall wall : walls) {
             if (wall.getBounds().intersects(bounds)) {
                 return true;
@@ -87,21 +90,29 @@ public class Player {
     }
 
     public void draw(GraphicsContext gc) {
+        // Update position and redraw player
         update(GameModel.getInstance().getWalls(), GameModel.getInstance().getPellets());
-        gc.drawImage(currentImage, x, y, 30, 30);
+        gc.drawImage(currentImage, getX(), getY(), 30, 30);
+
+        // Draw the score
         gc.setFill(javafx.scene.paint.Color.WHITE);
         gc.fillText("Score: " + score, 30, 30);
     }
 
-    public int getScore() { return score; }
-    public void addScore(int value) { this.score += value; }
-    public double getX() { return x; }
-    public double getY() { return y; }
-
-    public Rectangle2D getBounds() {
-        return new Rectangle2D(x, y, 30, 30);
+    public int getScore() {
+        return score;
     }
 
+    public void addScore(int value) {
+        this.score += value;
+    }
+
+    @Override
+    public Rectangle2D getBounds() {
+        return new Rectangle2D(getX(), getY(), 30, 30);
+    }
+
+    // Custom collision check with pellets
     public boolean collidesWith(Pellet pellet) {
         return this.getBounds().intersects(pellet.getBounds());
     }

@@ -1,12 +1,17 @@
 package com.example.pacman.model;
 
 import com.example.pacman.db.ScoreDAO;
+import com.example.pacman.factory.EntityFactory;
+import com.example.pacman.factory.GhostFactory;
+import com.example.pacman.factory.PlayerFactory;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.image.Image;
 import javafx.geometry.Rectangle2D;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import com.example.pacman.observer.CollisionObserver;
 import com.example.pacman.observer.CollisionLogger;
 
@@ -23,15 +28,23 @@ public class GameModel {
     private Image frightenedGhostImage;
     private String playerName = "Unknown";
 
+    // Factories
+    private final EntityFactory playerFactory = new PlayerFactory();
+    private final EntityFactory ghostFactory = new GhostFactory();
+
     private GameModel() {
-        player = new Player(315, 270);
+        // Create the player using PlayerFactory
+        player = (Player) playerFactory.createEntity("pacman");
+
         walls = new ArrayList<>();
         ghosts = new ArrayList<>();
         pellets = new ArrayList<>();
         frightenedGhostImage = new Image(getClass().getResourceAsStream("/frightenedghost.gif"));
+
         generateMaze();
         generateGhosts();
         generatePellets();
+
         registerObserver(new CollisionLogger());
     }
 
@@ -44,11 +57,25 @@ public class GameModel {
         instance = new GameModel();
     }
 
-    public Player getPlayer() { return player; }
-    public List<Wall> getWalls() { return walls; }
-    public List<Ghost> getGhosts() { return ghosts; }
-    public List<Pellet> getPellets() { return pellets; }
-    public Image getFrightenedGhostImage() { return frightenedGhostImage; }
+    public Player getPlayer() {
+        return player;
+    }
+
+    public List<Wall> getWalls() {
+        return walls;
+    }
+
+    public List<Ghost> getGhosts() {
+        return ghosts;
+    }
+
+    public List<Pellet> getPellets() {
+        return pellets;
+    }
+
+    public Image getFrightenedGhostImage() {
+        return frightenedGhostImage;
+    }
 
     public void registerObserver(CollisionObserver observer) {
         observers.add(observer);
@@ -61,57 +88,40 @@ public class GameModel {
     }
 
     private void generateMaze() {
-
         walls.add(new Wall(0, 0, 600, 30));
         walls.add(new Wall(0, 570, 600, 30));
         walls.add(new Wall(0, 30, 30, 540));
         walls.add(new Wall(570, 30, 30, 540));
 
         // Top section - simplified
-        // Left top rectangle
         walls.add(new Wall(90, 90, 90, 60));
-
-        // Right top rectangle (symmetrical)
         walls.add(new Wall(420, 90, 90, 60));
-
-        // Middle top rectangle
         walls.add(new Wall(255, 90, 90, 60));
 
         // Middle section
-        // Left middle vertical bar
         walls.add(new Wall(90, 210, 60, 120));
-
-        // Right middle vertical bar (symmetrical)
         walls.add(new Wall(450, 210, 60, 120));
+        walls.add(new Wall(210, 210, 60, 30));
+        walls.add(new Wall(330, 210, 60, 30));
+        walls.add(new Wall(210, 240, 30, 90));
+        walls.add(new Wall(360, 240, 30, 90));
+        walls.add(new Wall(210, 330, 60, 30));
+        walls.add(new Wall(330, 330, 60, 30));
 
-        // Ghost house - much wider with a large entrance
-        walls.add(new Wall(210, 210, 60, 30));    // Top left
-        walls.add(new Wall(330, 210, 60, 30));    // Top right
-        walls.add(new Wall(210, 240, 30, 90));    // Left vertical
-        walls.add(new Wall(360, 240, 30, 90));    // Right vertical
-        walls.add(new Wall(210, 330, 60, 30));    // Bottom left
-        walls.add(new Wall(330, 330, 60, 30));    // Bottom right
-
-        // Bottom section - simplified
-        // Left bottom rectangle
+        // Bottom section
         walls.add(new Wall(90, 450, 90, 60));
-
-        // Right bottom rectangle (symmetrical)
         walls.add(new Wall(420, 450, 90, 60));
-
-        // Middle bottom rectangle
         walls.add(new Wall(255, 450, 90, 60));
-
-        // Additional horizontal bars
-        walls.add(new Wall(180, 390, 90, 30));    // Left middle horizontal
+        walls.add(new Wall(180, 390, 90, 30));
         walls.add(new Wall(330, 390, 90, 30));
     }
 
     private void generateGhosts() {
-        ghosts.add(new Ghost(285, 180, "red"));
-        ghosts.add(new Ghost(285, 180, "pink"));
-        ghosts.add(new Ghost(285, 180, "cyan"));
-        ghosts.add(new Ghost(285, 180, "yellow"));
+        // Create ghosts using GhostFactory
+        ghosts.add((Ghost) ghostFactory.createEntity("red"));
+        ghosts.add((Ghost) ghostFactory.createEntity("pink"));
+        ghosts.add((Ghost) ghostFactory.createEntity("cyan"));
+        ghosts.add((Ghost) ghostFactory.createEntity("yellow"));
     }
 
     private void generatePellets() {
@@ -144,7 +154,9 @@ public class GameModel {
         }
     }
 
-    public boolean isPowerModeActive() { return powerModeActive; }
+    public boolean isPowerModeActive() {
+        return powerModeActive;
+    }
 
     public void draw(GraphicsContext gc) {
         checkPowerModeTimeout();
@@ -184,7 +196,6 @@ public class GameModel {
                     notifyCollisionObservers("Pac-Man ate a frightened ghost at (" + ghost.getX() + ", " + ghost.getY() + ")");
                 } else {
                     notifyCollisionObservers("Pac-Man collided with a ghost at (" + ghost.getX() + ", " + ghost.getY() + ")");
-
                 }
             }
         }
