@@ -7,26 +7,24 @@ import java.util.List;
 import java.util.Random;
 
 public class Ghost extends GameEntity {
-    private final String colorName;           // Name of the ghost's color
-    private int dx, dy;                       // Movement deltas
+    private final String colorName;          
+    private int dx, dy;                      
     private final Random random = new Random();
-    private boolean isChasing = false;        // Is the ghost chasing the player?
-    private Player targetPlayer;              // The player being targeted
-    private boolean isFrightened = false;     // Is the ghost frightened?
-    private Image ghostImage;                 // Normal ghost image
-    private Image frightenedImage;            // Frightened ghost image
-    private final double startX, startY;      // Initial starting position
+    private boolean isChasing = false;       
+    private Player targetPlayer;            
+    private boolean isFrightened = false;     
+    private Image ghostImage;           
+    private Image frightenedImage;       
+    private final double startX, startY;   
 
     public Ghost(double x, double y, String colorName) {
-        super(x, y); // Call parent constructor to set initial position
+        super(x, y); 
         this.startX = x;
         this.startY = y;
         this.colorName = colorName;
-        loadImage(); // Load ghost images
-        setRandomDirection(); // Give the ghost a random initial direction
-    }
+        loadImage(); 
+        setRandomDirection(); 
 
-    // Load ghost images
     private void loadImage() {
         String imagePath = "/ghost_" + colorName.toLowerCase() + ".gif";
         ghostImage = new Image(getClass().getResourceAsStream(imagePath));
@@ -47,17 +45,17 @@ public class Ghost extends GameEntity {
     }
 
     private void setRandomDirection() {
-        int dir = random.nextInt(4); // Randomly pick a direction
+        int dir = random.nextInt(4); 
         switch (dir) {
-            case 0 -> { dx = 2; dy = 0; }   // Right
-            case 1 -> { dx = -2; dy = 0; }  // Left
-            case 2 -> { dx = 0; dy = 2; }   // Down
-            case 3 -> { dx = 0; dy = -2; }  // Up
+            case 0 -> { dx = 2; dy = 0; }  
+            case 1 -> { dx = -2; dy = 0; } 
+            case 2 -> { dx = 0; dy = 2; } 
+            case 3 -> { dx = 0; dy = -2; } 
         }
     }
 
     private void setChaseDirection() {
-        if (targetPlayer == null) return; // No target player to chase
+        if (targetPlayer == null) return; 
 
         double px = targetPlayer.getX();
         double py = targetPlayer.getY();
@@ -65,7 +63,6 @@ public class Ghost extends GameEntity {
         dx = 0;
         dy = 0;
 
-        // Prioritize movement direction based on distance from the player
         if (Math.abs(px - getX()) > Math.abs(py - getY())) {
             dx = (px > getX()) ? 2 : -2;
         } else {
@@ -78,20 +75,17 @@ public class Ghost extends GameEntity {
         double oldY = getY();
 
         if (isChasing && !isFrightened) {
-            setChaseDirection(); // Adjust direction based on the player's position
+            setChaseDirection(); 
         }
 
         setX(getX() + dx);
         setY(getY() + dy);
 
-        // Check for wall collisions and handle appropriately
         Rectangle2D bounds = new Rectangle2D(getX(), getY(), 30, 30);
         for (Wall wall : walls) {
             if (wall.getBounds().intersects(bounds)) {
-                // Revert to previous position
                 setX(oldX);
                 setY(oldY);
-                // If chasing and not frightened, stop moving; otherwise, pick a new random direction
                 if (isChasing && !isFrightened) {
                     dx = 0;
                     dy = 0;
@@ -104,20 +98,17 @@ public class Ghost extends GameEntity {
     }
 
     public boolean collidesWith(Player player) {
-        // Check collision with the player
         Rectangle2D ghostBounds = new Rectangle2D(getX(), getY(), 30, 30);
         Rectangle2D playerBounds = new Rectangle2D(player.getX(), player.getY(), 30, 30);
         return ghostBounds.intersects(playerBounds);
     }
 
     public void draw(GraphicsContext gc) {
-        // Draw ghost image based on its state (frightened or normal)
         Image imgToDraw = isFrightened ? frightenedImage : ghostImage;
         gc.drawImage(imgToDraw, getX(), getY(), 30, 30);
     }
 
     public void resetPosition() {
-        // Reset ghost to its initial position
         setX(startX);
         setY(startY);
     }
@@ -128,7 +119,6 @@ public class Ghost extends GameEntity {
 
     @Override
     public Rectangle2D getBounds() {
-        // Return the bounding rectangle of the ghost (used for collision detection)
         return new Rectangle2D(getX(), getY(), 30, 30);
     }
 }
