@@ -24,16 +24,14 @@ public class GameModel {
     private final List<CollisionObserver> observers = new ArrayList<>();
     private boolean powerModeActive = false;
     private long powerModeStartTime;
-    private static final int POWER_MODE_DURATION = 7000; // milliseconds
+    private static final int POWER_MODE_DURATION = 7000;
     private Image frightenedGhostImage;
     private String playerName = "Unknown";
 
-    // Factories
     private final EntityFactory playerFactory = new PlayerFactory();
     private final EntityFactory ghostFactory = new GhostFactory();
 
     private GameModel() {
-        // Create the player using PlayerFactory
         player = (Player) playerFactory.createEntity("pacman");
 
         walls = new ArrayList<>();
@@ -87,18 +85,16 @@ public class GameModel {
         }
     }
 
-    private void generateMaze() {
+    private void generateMaze() { 
         walls.add(new Wall(0, 0, 600, 30));
         walls.add(new Wall(0, 570, 600, 30));
         walls.add(new Wall(0, 30, 30, 540));
         walls.add(new Wall(570, 30, 30, 540));
-
-        // Top section - simplified
+        
         walls.add(new Wall(90, 90, 90, 60));
         walls.add(new Wall(420, 90, 90, 60));
         walls.add(new Wall(255, 90, 90, 60));
 
-        // Middle section
         walls.add(new Wall(90, 210, 60, 120));
         walls.add(new Wall(450, 210, 60, 120));
         walls.add(new Wall(210, 210, 60, 30));
@@ -108,7 +104,6 @@ public class GameModel {
         walls.add(new Wall(210, 330, 60, 30));
         walls.add(new Wall(330, 330, 60, 30));
 
-        // Bottom section
         walls.add(new Wall(90, 450, 90, 60));
         walls.add(new Wall(420, 450, 90, 60));
         walls.add(new Wall(255, 450, 90, 60));
@@ -117,7 +112,6 @@ public class GameModel {
     }
 
     private void generateGhosts() {
-        // Create ghosts using GhostFactory
         ghosts.add((Ghost) ghostFactory.createEntity("red"));
         ghosts.add((Ghost) ghostFactory.createEntity("pink"));
         ghosts.add((Ghost) ghostFactory.createEntity("cyan"));
