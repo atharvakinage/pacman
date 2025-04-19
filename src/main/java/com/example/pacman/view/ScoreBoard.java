@@ -98,7 +98,6 @@ public class ScoreBoard {
                 powerModeLabel.setText("Power Mode: " + (powerMode ? "ON" : "OFF"))
         );
     }
-
     public void close() {
         Platform.runLater(stage::close);
     }
