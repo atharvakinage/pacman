@@ -46,13 +46,13 @@ public class GameLoop extends AnimationTimer {
         scoreBoard.updateScore( model.getPlayer().getScore());
         scoreBoard.updatePowerMode( model.isPowerModeActive());
 
-        // Check for pellet win
+        
         if (model.getPellets().isEmpty()) {
             gameOver = true;
             playerWon = true;
         }
 
-        // Check for ghost collision
+        
         Player player = model.getPlayer();
         for (Ghost ghost : model.getGhosts()) {
             if (ghost.collidesWith(player)) {
@@ -72,22 +72,22 @@ public class GameLoop extends AnimationTimer {
         String message = playerWon ? "🎉 YOU WIN!" : "💀 GAME OVER";
         String restartMsg = "Press SPACE to Save Score!!\n & Restart";
 
-        // Main message
+       
         gc.setFill(playerWon ? Color.LIMEGREEN : Color.RED);
         gc.setFont(Font.font("Consolas", 52));
         gc.fillText(message, 110, 280);
 
-        // Shadow for depth
+        
         gc.setFill(Color.DARKGRAY);
         gc.setFont(Font.font("Consolas", 52));
-        gc.fillText(message, 112, 282); // shadow offset
+        gc.fillText(message, 112, 282); 
 
-        // "Press SPACE to Restart"
+        
         gc.setFill(Color.CYAN);
         gc.setFont(Font.font("Consolas", 26));
         gc.fillText(restartMsg, 150, 350);
 
-        // Ensure keyboard input works
+        
         gc.getCanvas().requestFocus();
         gc.getCanvas().setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.SPACE) {
