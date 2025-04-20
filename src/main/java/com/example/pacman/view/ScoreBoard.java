@@ -49,7 +49,6 @@ public class ScoreBoard {
         stage.setX(1100);
         stage.setY(100);
         stage.show();
-
         loadLeaderboard();
     }
 
