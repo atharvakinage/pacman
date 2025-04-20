@@ -9,13 +9,10 @@ public class ScoreDAO {
     private static final String USER = "root";
     private static final String PASS = "password";
 
-    // Singleton instance
     private static ScoreDAO instance;
 
-    // Private constructor to prevent external instantiation
     private ScoreDAO() {}
 
-    // Public method to get the instance
     public static synchronized ScoreDAO getInstance() {
         if (instance == null) {
             instance = new ScoreDAO();
