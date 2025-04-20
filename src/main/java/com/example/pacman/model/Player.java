@@ -7,8 +7,8 @@ import javafx.geometry.Rectangle2D;
 import java.util.List;
 
 public class Player extends GameEntity {
-    private double dx = 0, dy = 0; // Movement deltas
-    private int score; // Player's score
+    private double dx = 0, dy = 0; 
+    private int score; 
     private Image pacmanRight;
     private Image pacmanLeft;
     private Image pacmanUp;
@@ -16,10 +16,10 @@ public class Player extends GameEntity {
     private Image currentImage;
 
     public Player(double x, double y) {
-        super(x, y); // Pass coordinates to the parent class
+        super(x, y); 
         this.score = 0;
 
-        // Load Pacman images
+        
         pacmanRight = new Image(getClass().getResourceAsStream("/pacmanRight.gif"));
         pacmanLeft = new Image(getClass().getResourceAsStream("/pacmanLeft.gif"));
         pacmanUp = new Image(getClass().getResourceAsStream("/pacmanUp.gif"));
@@ -28,7 +28,7 @@ public class Player extends GameEntity {
     }
 
     public void handleKey(KeyCode code) {
-        // Handle movement based on the key pressed
+       
         switch (code) {
             case UP -> {
                 dx = 0;
@@ -59,13 +59,11 @@ public class Player extends GameEntity {
         setX(getX() + dx);
         setY(getY() + dy);
 
-        // Roll back movement if a collision occurs
         if (checkCollision(walls)) {
             setX(oldX);
             setY(oldY);
         }
 
-        // Check for pellet collisions and update score
         Rectangle2D bounds = new Rectangle2D(getX(), getY(), 30, 30);
         for (Pellet pellet : pellets) {
             if (pellet.isVisible() && pellet.getBounds().intersects(bounds)) {
@@ -79,7 +77,7 @@ public class Player extends GameEntity {
     }
 
     private boolean checkCollision(List<Wall> walls) {
-        // Check for collision with walls
+        
         Rectangle2D bounds = new Rectangle2D(getX(), getY(), 30, 30);
         for (Wall wall : walls) {
             if (wall.getBounds().intersects(bounds)) {
@@ -90,11 +88,11 @@ public class Player extends GameEntity {
     }
 
     public void draw(GraphicsContext gc) {
-        // Update position and redraw player
+      
         update(GameModel.getInstance().getWalls(), GameModel.getInstance().getPellets());
         gc.drawImage(currentImage, getX(), getY(), 30, 30);
 
-        // Draw the score
+      
         gc.setFill(javafx.scene.paint.Color.WHITE);
         gc.fillText("Score: " + score, 30, 30);
     }
@@ -112,7 +110,7 @@ public class Player extends GameEntity {
         return new Rectangle2D(getX(), getY(), 30, 30);
     }
 
-    // Custom collision check with pellets
+   
     public boolean collidesWith(Pellet pellet) {
         return this.getBounds().intersects(pellet.getBounds());
     }
